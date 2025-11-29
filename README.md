@@ -146,6 +146,14 @@ The dashboard is fully keyboard accessible:
 - **ESC**: Close modal dialogs
 - Focus indicators show current position
 
+### Screenshorts:
+
+![WhatsApp Image 2025-11-29 at 21 57 50_0d54b341](https://github.com/user-attachments/assets/cd94789b-6708-4422-b377-efbdab0a3155)
+
+![WhatsApp Image 2025-11-29 at 21 58 35_78a13dab](https://github.com/user-attachments/assets/e612878e-5e95-4052-882e-97aaac0bacc5)
+
+![WhatsApp Image 2025-11-29 at 21 59 01_3bd6628a](https://github.com/user-attachments/assets/01797d3f-0ca8-484d-b02b-5f07801769e9)
+
 ## Adding New Ragas to the Dataset
 
 To add new ragas to the collection, edit the `js/data.js` file:
