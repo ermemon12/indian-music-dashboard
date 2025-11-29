@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>App Integration Test</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .test-pass { color: green; }
+    .test-fail { color: red; }
+    .test-section { margin: 20px 0; padding: 10px; border: 1px solid #ddd; }
+  </style>
+</head>
+<body class="p-8">
+  <h1 class="text-3xl font-bold mb-6">App.js Integration Tests</h1>
+  <div id="testResults"></div>
+  
+  <!-- Hidden UI elements for testing -->
+  <div style="display: none;">
+    <input type="text" id="searchInput">
+    <select id="thaatFilter"><option value="">All Thaats</option></select>
+    <select id="timeFilter"><option value="">All Times</option></select>
+    <button id="clearFiltersBtn">Clear</button>
+    <button id="closeModalBtn">Close</button>
+    <div id="ragaListContainer"></div>
+    <div id="noResultsMessage" class="hidden"></div>
+    <div id="ragaDetailModal" class="hidden">
+      <div id="modalContent"></div>
+    </div>
+  </div>
+  
+  <!-- Load modules -->
+  <script src="../js/data.js"></script>
+  <script src="../js/filter.js"></script>
+  <script src="../js/search.js"></script>
+  <script src="../js/audio.js"></script>
+  <script src="../js/ui.js"></script>
+  <script src="../js/app.js"></script>
+  
+  <script>
+    const results = [];
+    
+    function addResult(testName, passed, message = '') {
+      results.push({ testName, passed, message });
+    }
+    
+    function runTests() {
+      console.log('Starting integration tests...');
+      
+      // Test 1: App state initialization
+      addResult(
+        'App state initialization',
+        appState && appState.allRagas.length > 0,
+        `Loaded ${appState?.allRagas?.length || 0} ragas`
+      );
+      
+      // Test 2: Filter dropdowns populated
+      const thaatFilter = document.getElementById('thaatFilter');
+      const timeFilter = document.getElementById('timeFilter');
+      addResult(
+        'Thaat filter populated',
+        thaatFilter.options.length > 1,
+        `${thaatFilter.options.length - 1} options`
+      );
+      addResult(
+        'Time filter populated',
+        timeFilter.options.length > 1,
+        `${timeFilter.options.length - 1} options`
+      );
+      
+      // Test 3: Initial rendering
+      const container = document.getElementById('ragaListContainer');
+      addResult(
+        'Initial raga list rendered',
+        container.children.length > 0,
+        `${container.children.length} cards rendered`
+      );
+      
+      // Test 4: Filter functionality
+      const initialCount = appState.displayedRagas.length;
+      thaatFilter.value = 'Kalyan';
+      handleFilterChange({ target: thaatFilter });
+      const filteredCount = appState.displayedRagas.length;
+      const allKalyan = appState.displayedRagas.every(r => r.thaat === 'Kalyan');
+      addResult(
+        'Thaat filter works',
+        filteredCount < initialCount && allKalyan,
+        `Filtered to ${filteredCount} Kalyan ragas`
+      );
+      
+      // Test 5: Search functionality
+      handleClearFilters(); // Reset filters first
+      const searchInput = document.getElementById('searchInput');
+      searchInput.value = 'Yaman';
+      handleSearchInput({ target: searchInput });
+      const searchCount = appState.displayedRagas.length;
+      const allMatchSearch = appState.displayedRagas.every(r => 
+        r.name.toLowerCase().includes('yaman')
+      );
+      addResult(
+        'Search functionality works',
+        searchCount > 0 && allMatchSearch,
+        `Found ${searchCount} ragas matching 'Yaman'`
+      );
+      
+      // Test 6: Combined filter and search
+      thaatFilter.value = 'Kalyan';
+      handleFilterChange({ target: thaatFilter });
+      const combinedCount = appState.displayedRagas.length;
+      const allMatchBoth = appState.displayedRagas.every(r => 
+        r.thaat === 'Kalyan' && r.name.toLowerCase().includes('yaman')
+      );
+      addResult(
+        'Combined filter and search works',
+        combinedCount > 0 && allMatchBoth,
+        `Found ${combinedCount} Kalyan ragas matching 'Yaman'`
+      );
+      
+      // Test 7: Clear filters
+      handleClearFilters();
+      searchInput.value = '';
+      handleSearchInput({ target: searchInput });
+      const clearedCount = appState.displayedRagas.length;
+      addResult(
+        'Clear filters restores all ragas',
+        clearedCount === appState.allRagas.length,
+        `Showing ${clearedCount} of ${appState.allRagas.length} ragas`
+      );
+      
+      // Test 8: Update display coordination
+      appState.filters.thaat = 'Bilawal';
+      appState.searchTerm = '';
+      updateDisplay();
+      const bilwalCount = appState.displayedRagas.length;
+      const allBilawal = appState.displayedRagas.every(r => r.thaat === 'Bilawal');
+      addResult(
+        'updateDisplay coordinates modules correctly',
+        bilwalCount > 0 && allBilawal,
+        `updateDisplay correctly filtered to ${bilwalCount} Bilawal ragas`
+      );
+      
+      // Test 9: Event listeners are set up
+      addResult(
+        'Event listeners attached',
+        typeof setupEventListeners === 'function',
+        'setupEventListeners function exists'
+      );
+      
+      // Test 10: All required functions exist
+      const requiredFunctions = [
+        'init', 'setupEventListeners', 'handleFilterChange',
+        'handleSearchInput', 'handleClearFilters', 'updateDisplay'
+      ];
+      const allExist = requiredFunctions.every(fn => typeof window[fn] === 'function');
+      addResult(
+        'All required functions exist',
+        allExist,
+        requiredFunctions.join(', ')
+      );
+      
+      // Display results
+      displayResults();
+    }
+    
+    function displayResults() {
+      const container = document.getElementById('testResults');
+      const passed = results.filter(r => r.passed).length;
+      const total = results.length;
+      
+      let html = `<div class="test-section">
+        <h2 class="text-2xl font-bold mb-4">Test Summary: ${passed}/${total} passed</h2>
+      </div>`;
+      
+      results.forEach(result => {
+        const className = result.passed ? 'test-pass' : 'test-fail';
+        const icon = result.passed ? '✓' : '✗';
+        html += `<div class="test-section">
+          <div class="${className} font-bold">${icon} ${result.testName}</div>
+          <div class="text-gray-600 ml-6">${result.message}</div>
+        </div>`;
+      });
+      
+      container.innerHTML = html;
+      
+      // Log to console as well
+      console.log(`\n=== Test Results: ${passed}/${total} passed ===\n`);
+      results.forEach(result => {
+        console.log(`${result.passed ? '✓' : '✗'} ${result.testName}: ${result.message}`);
+      });
+    }
+    
+    // Run tests after a short delay to ensure everything is initialized
+    setTimeout(runTests, 500);
+  </script>
+</body>
+</html>

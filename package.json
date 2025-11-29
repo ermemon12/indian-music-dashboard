@@ -1,0 +1,23 @@
+{
+  "name": "indian-music-dashboard",
+  "version": "1.0.0",
+  "description": "Interactive dashboard for exploring Indian classical music",
+  "main": "js/app.js",
+  "scripts": {
+    "test": "node tests/run-property-tests.js",
+    "test:browser": "echo 'Open tests/test-runner.html in a browser to run tests'",
+    "test:performance": "node tests/run-performance-tests.js"
+  },
+  "keywords": [
+    "indian-music",
+    "raga",
+    "classical-music",
+    "dashboard"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "fast-check": "^3.15.0",
+    "jsdom": "^27.0.1"
+  }
+}

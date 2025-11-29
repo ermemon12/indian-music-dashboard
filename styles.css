@@ -1,0 +1,652 @@
+/* Indian Music Dashboard - Custom Styles */
+
+/* Root Variables for Indian Aesthetic Color Scheme */
+:root {
+  --primary-orange: #ea580c;
+  --primary-red: #dc2626;
+  --accent-gold: #f59e0b;
+  --accent-amber: #d97706;
+  --bg-cream: #fffbeb;
+  --bg-warm: #fef3c7;
+  --text-dark: #1f2937;
+  --text-medium: #4b5563;
+  --border-light: #fed7aa;
+  --border-orange: #fb923c;
+  --shadow-warm: rgba(234, 88, 12, 0.1);
+  --gradient-warm: linear-gradient(135deg, #fef3c7 0%, #fed7aa 100%);
+}
+
+/* Base Styles */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  line-height: 1.6;
+  color: var(--text-dark);
+  position: relative;
+}
+
+/* Subtle Indian Pattern Background */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.03;
+  z-index: -1;
+  background-image: 
+    repeating-linear-gradient(45deg, transparent, transparent 35px, var(--primary-orange) 35px, var(--primary-orange) 36px),
+    repeating-linear-gradient(-45deg, transparent, transparent 35px, var(--accent-gold) 35px, var(--accent-gold) 36px);
+  pointer-events: none;
+}
+
+/* Smooth Scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Focus Styles for Accessibility */
+*:focus {
+  outline: 2px solid var(--primary-orange);
+  outline-offset: 2px;
+}
+
+/* Screen Reader Only Content */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Skip Link - Visible on Focus */
+.sr-only:focus,
+.sr-only:active {
+  position: fixed;
+  width: auto;
+  height: auto;
+  padding: 1rem 1.5rem;
+  margin: 0;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+  z-index: 9999;
+  top: 1rem;
+  left: 1rem;
+  background-color: var(--primary-orange);
+  color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  font-weight: 600;
+  text-decoration: none;
+  outline: 3px solid white;
+  outline-offset: 2px;
+}
+
+.sr-only:focus:hover,
+.sr-only:active:hover {
+  background-color: var(--primary-red);
+}
+
+/* Raga Card Styles */
+.raga-card {
+  background: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 2px 4px var(--shadow-warm), 0 1px 2px rgba(0, 0, 0, 0.06);
+  padding: 1.5rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  border: 2px solid transparent;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Decorative corner accent */
+.raga-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, var(--bg-warm) 0%, transparent 100%);
+  border-radius: 0 0.75rem 0 100%;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.raga-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 24px var(--shadow-warm), 0 4px 8px rgba(234, 88, 12, 0.1);
+  border-color: var(--border-orange);
+}
+
+.raga-card:hover::before {
+  opacity: 1;
+}
+
+.raga-card:active {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px var(--shadow-warm);
+}
+
+.raga-card:focus {
+  outline: 3px solid var(--primary-orange);
+  outline-offset: 2px;
+}
+
+.raga-card h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 0.75rem;
+  letter-spacing: -0.01em;
+}
+
+.raga-card .raga-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--text-medium);
+}
+
+.raga-card .badge {
+  display: inline-block;
+  padding: 0.375rem 0.875rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
+  transition: all 0.2s ease;
+}
+
+.badge-thaat {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  color: #92400e;
+  border: 1px solid #fcd34d;
+}
+
+.badge-time {
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  color: #1e40af;
+  border: 1px solid #93c5fd;
+}
+
+.raga-card:hover .badge {
+  transform: scale(1.05);
+}
+
+/* Search Input Enhancement */
+input[type="text"]#searchInput {
+  transition: all 0.3s ease;
+  background: white;
+}
+
+input[type="text"]#searchInput:hover {
+  border-color: var(--border-orange);
+  box-shadow: 0 2px 8px var(--shadow-warm);
+}
+
+input[type="text"]#searchInput::placeholder {
+  color: #9ca3af;
+  font-style: italic;
+}
+
+/* Search Highlight */
+.search-highlight {
+  background: linear-gradient(120deg, #fef08a 0%, #fde047 100%);
+  font-weight: 600;
+  padding: 0 3px;
+  border-radius: 3px;
+  box-shadow: 0 1px 2px rgba(234, 88, 12, 0.1);
+}
+
+/* Modal Animations */
+#ragaDetailModal {
+  animation: fadeIn 0.2s ease-out;
+}
+
+#ragaDetailModal > div {
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Filter Panel Enhancement */
+aside .bg-white {
+  border: 1px solid var(--border-light);
+  transition: box-shadow 0.3s ease;
+}
+
+aside .bg-white:hover {
+  box-shadow: 0 4px 12px var(--shadow-warm);
+}
+
+select {
+  transition: all 0.2s ease;
+  background-color: white;
+  cursor: pointer;
+}
+
+select:hover {
+  border-color: var(--border-orange);
+  background-color: var(--bg-cream);
+}
+
+button {
+  transition: all 0.2s ease;
+  font-weight: 600;
+}
+
+button:hover {
+  transform: translateY(-1px);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+/* Audio Player Styles */
+.audio-player {
+  background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  margin-top: 1.5rem;
+  border: 2px solid #e5e7eb;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.audio-controls {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.audio-controls button {
+  background: linear-gradient(135deg, var(--primary-orange) 0%, var(--accent-amber) 100%);
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 600;
+  box-shadow: 0 2px 4px rgba(234, 88, 12, 0.2);
+}
+
+.audio-controls button:hover {
+  background: linear-gradient(135deg, var(--primary-red) 0%, var(--primary-orange) 100%);
+  box-shadow: 0 4px 8px rgba(220, 38, 38, 0.3);
+  transform: translateY(-2px);
+}
+
+.audio-controls button:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(234, 88, 12, 0.2);
+}
+
+.audio-controls button:disabled {
+  background: #d1d5db;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+.audio-controls button:disabled:hover {
+  background: #d1d5db;
+  transform: none;
+}
+
+/* Responsive Design - Mobile First */
+
+/* Mobile (default, < 768px) */
+.container {
+  max-width: 100%;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+/* Stack filters on mobile */
+@media (max-width: 767px) {
+  aside {
+    margin-bottom: 1.5rem;
+  }
+  
+  aside .bg-white {
+    position: static !important;
+  }
+  
+  .raga-card {
+    padding: 1.25rem;
+  }
+  
+  header h1 {
+    font-size: 1.75rem;
+  }
+  
+  #ragaDetailModal > div {
+    max-height: 85vh;
+    margin: 1rem;
+  }
+}
+
+/* Tablet (768px - 1024px) */
+@media (min-width: 768px) {
+  .container {
+    max-width: 768px;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+  
+  .raga-card h3 {
+    font-size: 1.375rem;
+  }
+  
+  .raga-card {
+    padding: 1.75rem;
+  }
+  
+  /* Two column grid for raga cards on tablet */
+  #ragaListContainer {
+    gap: 1.25rem;
+  }
+}
+
+/* Desktop (> 1024px) */
+@media (min-width: 1024px) {
+  .container {
+    max-width: 1024px;
+  }
+  
+  /* Filter panel becomes sticky sidebar */
+  aside .bg-white {
+    position: sticky;
+    top: 1.5rem;
+  }
+  
+  .raga-card h3 {
+    font-size: 1.5rem;
+  }
+  
+  /* Three column grid for raga cards on desktop */
+  #ragaListContainer {
+    gap: 1.5rem;
+  }
+}
+
+/* Large Desktop (> 1280px) */
+@media (min-width: 1280px) {
+  .container {
+    max-width: 1280px;
+  }
+  
+  .raga-card {
+    padding: 2rem;
+  }
+}
+
+/* Extra Large Desktop (> 1536px) */
+@media (min-width: 1536px) {
+  .container {
+    max-width: 1536px;
+  }
+}
+
+/* Print Styles */
+@media print {
+  header {
+    background: white !important;
+    color: black !important;
+  }
+  
+  .no-print {
+    display: none !important;
+  }
+  
+  .raga-card {
+    break-inside: avoid;
+  }
+}
+
+/* Header Enhancement */
+header {
+  position: relative;
+  overflow: hidden;
+}
+
+header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, 
+    var(--accent-gold) 0%, 
+    var(--primary-orange) 25%, 
+    var(--primary-red) 50%, 
+    var(--primary-orange) 75%, 
+    var(--accent-gold) 100%);
+}
+
+/* No Results Message Enhancement */
+#noResultsMessage {
+  animation: fadeIn 0.4s ease-out;
+}
+
+/* Loading State */
+.loading {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(234, 88, 12, 0.3);
+  border-radius: 50%;
+  border-top-color: var(--primary-orange);
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Modal Content Styling */
+#modalContent {
+  line-height: 1.8;
+}
+
+#modalContent h3 {
+  color: var(--primary-orange);
+  font-weight: 700;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  font-size: 1.125rem;
+  border-bottom: 2px solid var(--border-light);
+  padding-bottom: 0.5rem;
+}
+
+#modalContent p {
+  margin-bottom: 1rem;
+  color: var(--text-medium);
+}
+
+#modalContent strong {
+  color: var(--text-dark);
+  font-weight: 600;
+}
+
+/* Decorative Elements */
+.decorative-divider {
+  height: 2px;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    var(--border-orange) 50%, 
+    transparent 100%);
+  margin: 1.5rem 0;
+}
+
+/* Accessibility - High Contrast Mode Support */
+@media (prefers-contrast: high) {
+  .raga-card {
+    border: 2px solid var(--text-dark);
+  }
+  
+  .raga-card:hover {
+    border-color: var(--primary-orange);
+    border-width: 3px;
+  }
+}
+
+/* Accessibility - Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* Touch Device Optimizations */
+@media (hover: none) and (pointer: coarse) {
+  /* Larger touch targets on mobile */
+  .raga-card {
+    padding: 1.5rem;
+    min-height: 120px;
+  }
+  
+  button, select, input {
+    min-height: 44px;
+  }
+  
+  /* Remove hover effects on touch devices */
+  .raga-card:hover {
+    transform: none;
+  }
+  
+  /* Use active state instead */
+  .raga-card:active {
+    transform: scale(0.98);
+    box-shadow: 0 4px 8px var(--shadow-warm);
+  }
+}
+
+/* Scrollbar Styling for Webkit Browsers */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-cream);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--primary-orange) 0%, var(--accent-amber) 100%);
+  border-radius: 5px;
+  border: 2px solid var(--bg-cream);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, var(--primary-red) 0%, var(--primary-orange) 100%);
+}
+
+/* Selection Styling */
+::selection {
+  background-color: var(--primary-orange);
+  color: white;
+}
+
+::-moz-selection {
+  background-color: var(--primary-orange);
+  color: white;
+}
+
+/* Focus Visible for Better Keyboard Navigation */
+*:focus-visible {
+  outline: 3px solid var(--primary-orange);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Enhanced Focus Styles for Interactive Elements */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+[role="button"]:focus-visible {
+  outline: 3px solid var(--primary-orange);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 6px rgba(234, 88, 12, 0.2);
+}
+
+/* Modal Focus Trap Indicator */
+[role="dialog"] button:focus-visible {
+  outline: 3px solid white;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.3);
+}
+
+/* Ensure focus is visible on raga cards */
+[data-raga-id]:focus-visible {
+  outline: 3px solid var(--primary-orange);
+  outline-offset: 4px;
+  box-shadow: 0 0 0 8px rgba(234, 88, 12, 0.15);
+  transform: translateY(-2px);
+}
+
+/* Utility Classes */
+.text-gradient {
+  background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-red) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.shadow-warm {
+  box-shadow: 0 4px 12px var(--shadow-warm);
+}
+
+.border-warm {
+  border: 2px solid var(--border-light);
+}
+
+/* Smooth Transitions */
+a, button, input, select, .raga-card {
+  -webkit-tap-highlight-color: transparent;
+}

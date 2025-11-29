@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Indian Music Dashboard</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-gradient-to-br from-orange-50 to-amber-50 min-h-screen">
+  
+  <!-- Skip to main content link for keyboard navigation -->
+  <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:bg-orange-600 focus:text-white focus:px-4 focus:py-2 focus:rounded focus:shadow-lg">
+    Skip to main content
+  </a>
+  
+  <!-- Header -->
+  <header class="bg-gradient-to-r from-orange-600 to-red-600 text-white shadow-lg" role="banner">
+    <div class="container mx-auto px-4 py-6">
+      <h1 class="text-3xl md:text-4xl font-bold text-center">Indian Music Dashboard</h1>
+      <p class="text-center text-orange-100 mt-2 text-sm md:text-base">Explore the beauty of Indian Classical Music</p>
+    </div>
+  </header>
+
+  <!-- Main Content Area -->
+  <main id="main-content" class="container mx-auto px-4 py-6" role="main">
+    
+    <!-- Search Bar -->
+    <section class="mb-6" aria-label="Search section">
+      <div class="max-w-2xl mx-auto">
+        <label for="searchInput" class="sr-only">Search ragas by name</label>
+        <input 
+          type="search" 
+          id="searchInput" 
+          placeholder="Search ragas by name..." 
+          class="w-full px-4 py-3 rounded-lg border-2 border-orange-200 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-300 transition-all"
+          aria-label="Search ragas by name"
+          aria-describedby="searchDescription"
+        >
+        <span id="searchDescription" class="sr-only">Type to filter ragas by name. Results update automatically as you type.</span>
+      </div>
+    </section>
+
+    <!-- Content Grid: Filter Panel + Raga List -->
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      
+      <!-- Filter Panel -->
+      <aside class="lg:col-span-1" role="complementary" aria-label="Filter panel">
+        <div class="bg-white rounded-lg shadow-md p-6 sticky top-6">
+          <h2 class="text-xl font-semibold text-gray-800 mb-4" id="filtersHeading">Filters</h2>
+          
+          <!-- Thaat Filter -->
+          <div class="mb-6">
+            <label for="thaatFilter" class="block text-sm font-medium text-gray-700 mb-2">Thaat</label>
+            <select 
+              id="thaatFilter" 
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+              aria-label="Filter ragas by thaat classification"
+              aria-describedby="thaatDescription"
+            >
+              <option value="">All Thaats</option>
+            </select>
+            <span id="thaatDescription" class="sr-only">Select a thaat to filter ragas by their parent scale classification</span>
+          </div>
+
+          <!-- Time of Day Filter -->
+          <div class="mb-6">
+            <label for="timeFilter" class="block text-sm font-medium text-gray-700 mb-2">Time of Day</label>
+            <select 
+              id="timeFilter" 
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+              aria-label="Filter ragas by traditional performance time"
+              aria-describedby="timeDescription"
+            >
+              <option value="">All Times</option>
+            </select>
+            <span id="timeDescription" class="sr-only">Select a time of day to filter ragas by their traditional performance period</span>
+          </div>
+
+          <!-- Clear Filters Button -->
+          <button 
+            id="clearFiltersBtn" 
+            class="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 mb-3"
+            aria-label="Clear all active filters and show all ragas"
+            type="button"
+          >
+            Clear Filters
+          </button>
+          
+          <!-- Reset State Button -->
+          <button 
+            id="resetStateBtn" 
+            class="w-full bg-orange-100 hover:bg-orange-200 text-orange-800 font-medium py-2 px-4 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2"
+            aria-label="Reset application to initial state"
+            type="button"
+            title="Reset all filters, search, and close any open modals"
+          >
+            Reset All
+          </button>
+        </div>
+      </aside>
+
+      <!-- Raga List -->
+      <section class="lg:col-span-3" role="region" aria-label="Raga list" aria-live="polite">
+        <div id="ragaListContainer" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4" role="list">
+          <!-- Raga cards will be dynamically inserted here -->
+        </div>
+        
+        <!-- No Results Message -->
+        <div id="noResultsMessage" class="hidden text-center py-12" role="status" aria-live="polite">
+          <svg class="mx-auto h-16 w-16 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <h3 class="text-xl font-medium text-gray-700 mb-2">No ragas found</h3>
+          <p class="text-gray-500">Try adjusting your search or filters</p>
+        </div>
+      </section>
+
+    </div>
+
+  </main>
+
+  <!-- Raga Detail Modal -->
+  <div id="ragaDetailModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="modalTitle" aria-describedby="modalDescription">
+    <div class="bg-white rounded-lg shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto" role="document">
+      
+      <!-- Modal Header -->
+      <div class="sticky top-0 bg-gradient-to-r from-orange-600 to-red-600 text-white px-6 py-4 flex justify-between items-center">
+        <h2 id="modalTitle" class="text-2xl font-bold">Raga Details</h2>
+        <button 
+          id="closeModalBtn" 
+          class="text-white hover:text-gray-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-orange-600 rounded-full p-1"
+          aria-label="Close raga details dialog"
+          type="button"
+        >
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Modal Content -->
+      <div id="modalContent" class="p-6">
+        <span id="modalDescription" class="sr-only">Detailed information about the selected raga including aroha, avaroha, mood, and characteristics</span>
+        <!-- Raga details will be dynamically inserted here -->
+      </div>
+
+    </div>
+  </div>
+
+  <!-- JavaScript Modules -->
+  <script src="js/data.js"></script>
+  <script src="js/filter.js"></script>
+  <script src="js/search.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/app.js"></script>
+  
+  <!-- fast-check for property-based testing (loaded in test environment) -->
+  <script src="https://cdn.jsdelivr.net/npm/fast-check@3.15.0/lib/bundle.js"></script>
+
+</body>
+</html>

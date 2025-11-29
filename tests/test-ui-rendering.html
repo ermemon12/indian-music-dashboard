@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UI Rendering Property Tests</title>
+  <style>
+    body {
+      font-family: monospace;
+      padding: 20px;
+      background-color: #1e1e1e;
+      color: #d4d4d4;
+    }
+    #output {
+      white-space: pre-wrap;
+      background-color: #252526;
+      padding: 15px;
+      border-radius: 5px;
+      border: 1px solid #3e3e42;
+    }
+    .pass { color: #4ec9b0; }
+    .fail { color: #f48771; }
+  </style>
+</head>
+<body>
+  <h1>UI Rendering Property Tests</h1>
+  <div id="output">Running tests...</div>
+
+  <!-- Load fast-check -->
+  <script src="https://cdn.jsdelivr.net/npm/fast-check@3.15.0/lib/bundle.js"></script>
+  
+  <!-- Load application modules -->
+  <script src="../js/data.js"></script>
+  <script src="../js/filter.js"></script>
+  <script src="../js/search.js"></script>
+  <script src="../js/ui.js"></script>
+  
+  <!-- Load test helpers -->
+  <script src="helpers/generators.js"></script>
+  
+  <!-- Load property tests -->
+  <script src="properties/ui-rendering.property.test.js"></script>
+  
+  <!-- Run tests -->
+  <script>
+    // Capture console output
+    const output = document.getElementById('output');
+    const originalLog = console.log;
+    const originalError = console.error;
+    
+    console.log = function(...args) {
+      const message = args.join(' ');
+      output.innerHTML += message + '\n';
+      originalLog.apply(console, args);
+    };
+    
+    console.error = function(...args) {
+      const message = args.join(' ');
+      output.innerHTML += '<span class="fail">' + message + '</span>\n';
+      originalError.apply(console, args);
+    };
+    
+    // Run the tests
+    setTimeout(() => {
+      try {
+        runUIRenderingPropertyTests();
+      } catch (error) {
+        console.error('Error running tests:', error);
+      }
+    }, 100);
+  </script>
+</body>
+</html>

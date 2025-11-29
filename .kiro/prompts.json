@@ -1,0 +1,17 @@
+{
+  "created_with": "Kiro",
+  "prompts": [
+    {
+      "id": "01-ui",
+      "prompt": "Generate a Tailwind CDN HTML form for an agriculture input calculator.",
+      "timestamp": "2025-11-29",
+      "result_summary": "Scaffolded index.html"
+    },
+    {
+      "id": "02-logic",
+      "prompt": "Create JS logic for area conversion, rate calculation, soil adjustment, and PDF export.",
+      "timestamp": "2025-11-29",
+      "result_summary": "Completed script.js logic"
+    }
+  ]
+}

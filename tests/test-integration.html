@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Integration Tests - Indian Music Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .test-pass { color: #10b981; }
+    .test-fail { color: #ef4444; }
+    .test-section { margin-bottom: 2rem; }
+  </style>
+</head>
+<body class="bg-gray-100 p-8">
+  <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-8">
+    <h1 class="text-3xl font-bold mb-6">Integration Tests</h1>
+    <div id="testResults"></div>
+    <div id="testSummary" class="mt-8 p-4 bg-gray-50 rounded"></div>
+  </div>
+
+  <!-- Hidden test environment -->
+  <div id="testEnvironment" style="position: absolute; left: -9999px;">
+    <!-- Search Bar -->
+    <input type="text" id="searchInput" />
+
+    <!-- Filters -->
+    <select id="thaatFilter">
+      <option value="">All Thaats</option>
+    </select>
+    <select id="timeFilter">
+      <option value="">All Times</option>
+    </select>
+    <button id="clearFiltersBtn">Clear Filters</button>
+
+    <!-- Raga List Container -->
+    <div id="ragaListContainer"></div>
+    <div id="noResultsMessage" class="hidden"></div>
+
+    <!-- Modal -->
+    <div id="ragaDetailModal" class="hidden">
+      <div id="modalContent"></div>
+      <button id="closeModalBtn">Close</button>
+    </div>
+  </div>
+
+  <!-- Load application modules -->
+  <script src="../js/data.js"></script>
+  <script src="../js/filter.js"></script>
+  <script src="../js/search.js"></script>
+  <script src="../js/audio.js"></script>
+  <script src="../js/ui.js"></script>
+  <script src="../js/app.js"></script>
+
+  <!-- Integration Tests -->
+  <script>
+    // Test framework
+    class IntegrationTestRunner {
+      constructor() {
+        this.tests = [];
+        this.passed = 0;
+        this.failed = 0;
+        this.results = [];
+      }
+
+      test(name, fn) {
+        this.tests.push({ name, fn });
+      }
+
+      async run() {
+        const resultsDiv = document.getElementById('testResults');
+        
+        for (const test of this.tests) {
+          try {
+            await test.fn();
+            this.passed++;
+            this.results.push({ name: test.name, passed: true });
+            this.logResult(resultsDiv, test.name, true);
+          } catch (error) {
+            this.failed++;
+            this.results.push({ name: test.name, passed: false, error: error.message });
+            this.logResult(resultsDiv, test.name, false, error.message);
+          }
+        }
+
+        this.showSummary();
+      }
+
+      logResult(container, name, passed, error = null) {
+        const div = document.createElement('div');
+        div.className = 'test-section';
+        div.innerHTML = `
+          <div class="${passed ? 'test-pass' : 'test-fail'}">
+            ${passed ? '✓' : '✗'} ${name}
+            ${error ? `<div class="ml-6 text-sm">${error}</div>` : ''}
+          </div>
+        `;
+        container.appendChild(div);
+      }
+
+      showSummary() {
+        const summaryDiv = document.getElementById('testSummary');
+        const total = this.passed + this.failed;
+        const passRate = ((this.passed / total) * 100).toFixed(1);
+        
+        summaryDiv.innerHTML = `
+          <h2 class="text-xl font-bold mb-4">Test Summary</h2>
+          <div class="grid grid-cols-3 gap-4">
+            <div class="text-center">
+              <div class="text-3xl font-bold text-green-600">${this.passed}</div>
+              <div class="text-sm text-gray-600">Passed</div>
+            </div>
+            <div class="text-center">
+              <div class="text-3xl font-bold text-red-600">${this.failed}</div>
+              <div class="text-sm text-gray-600">Failed</div>
+            </div>
+            <div class="text-center">
+              <div class="text-3xl font-bold text-blue-600">${passRate}%</div>
+              <div class="text-sm text-gray-600">Pass Rate</div>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    // Helper functions
+    function assert(condition, message) {
+      if (!condition) {
+        throw new Error(message || 'Assertion failed');
+      }
+    }
+
+    function assertEqual(actual, expected, message) {
+      if (actual !== expected) {
+        throw new Error(message || `Expected ${expected}, got ${actual}`);
+      }
+    }
+
+    function assertGreaterThan(actual, expected, message) {
+      if (actual <= expected) {
+        throw new Error(message || `Expected ${actual} > ${expected}`);
+      }
+    }
+
+    function assertContains(str, substring, message) {
+      if (!str.includes(substring)) {
+        throw new Error(message || `Expected "${str}" to contain "${substring}"`);
+      }
+    }
+
+    // Wait for app to initialize
+    setTimeout(() => {
+      const runner = new IntegrationTestRunner();
+
+      // Test 1: Filter changes update display
+      runner.test('Filter by thaat updates display correctly', () => {
+        const thaatFilter = document.getElementById('thaatFilter');
+        const initialCount = appState.displayedRagas.length;
+        
+        thaatFilter.value = 'Kalyan';
+        thaatFilter.dispatchEvent(new Event('change'));
+        
+        const filteredCount = appState.displayedRagas.length;
+        assert(filteredCount <= initialCount, 'Filtered count should be <= initial count');
+        
+        // Verify all displayed ragas have correct thaat
+        appState.displayedRagas.forEach(raga => {
+          assertEqual(raga.thaat, 'Kalyan', `Raga ${raga.name} should have thaat Kalyan`);
+        });
+        
+        // Verify DOM is updated
+        const displayedCards = document.getElementById('ragaListContainer').children.length;
+        assertEqual(displayedCards, filteredCount, 'DOM should match filtered count');
+      });
+
+      // Test 2: Time filter updates display
+      runner.test('Filter by time of day updates display correctly', () => {
+        // Reset filters first
+        handleClearFilters();
+        
+        const timeFilter = document.getElementById('timeFilter');
+        timeFilter.value = 'Evening';
+        timeFilter.dispatchEvent(new Event('change'));
+        
+        // Verify all displayed ragas have correct time
+        appState.displayedRagas.forEach(raga => {
+          assertEqual(raga.timeOfDay, 'Evening', `Raga ${raga.name} should be Evening raga`);
+        });
+      });
+
+      // Test 3: Combined filters work correctly
+      runner.test('Combined filters work correctly', () => {
+        // Reset filters first
+        handleClearFilters();
+        
+        const thaatFilter = document.getElementById('thaatFilter');
+        const timeFilter = document.getElementById('timeFilter');
+        
+        thaatFilter.value = 'Kalyan';
+        thaatFilter.dispatchEvent(new Event('change'));
+        
+        timeFilter.value = 'Evening';
+        timeFilter.dispatchEvent(new Event('change'));
+        
+        // Verify all displayed ragas match both filters
+        appState.displayedRagas.forEach(raga => {
+          assertEqual(raga.thaat, 'Kalyan', 'Should match thaat filter');
+          assertEqual(raga.timeOfDay, 'Evening', 'Should match time filter');
+        });
+      });
+
+      // Test 4: Clear filters restores all ragas
+      runner.test('Clear filters restores all ragas', () => {
+        const totalRagas = appState.allRagas.length;
+        
+        // Apply a filter
+        const thaatFilter = document.getElementById('thaatFilter');
+        thaatFilter.value = 'Kalyan';
+        thaatFilter.dispatchEvent(new Event('change'));
+        
+        // Clear filters
+        document.getElementById('clearFiltersBtn').click();
+        
+        // Verify all ragas restored
+        assertEqual(appState.displayedRagas.length, totalRagas, 'Should restore all ragas');
+        assertEqual(appState.filters.thaat, null, 'Thaat filter should be null');
+        assertEqual(appState.filters.timeOfDay, null, 'Time filter should be null');
+      });
+
+      // Test 5: Search input updates display
+      runner.test('Search input updates display correctly', () => {
+        // Reset first
+        handleClearFilters();
+        
+        const searchInput = document.getElementById('searchInput');
+        searchInput.value = 'Yaman';
+        searchInput.dispatchEvent(new Event('input'));
+        
+        // Wait for debounce
+        return new Promise(resolve => {
+          setTimeout(() => {
+            assertEqual(appState.searchTerm, 'Yaman', 'Search term should be set');
+            
+            // Verify all results contain search term
+            appState.displayedRagas.forEach(raga => {
+              assert(
+                raga.name.toLowerCase().includes('yaman'),
+                `Raga ${raga.name} should contain 'yaman'`
+              );
+            });
+            
+            resolve();
+          }, 350); // Wait for debounce (300ms + buffer)
+        });
+      });
+
+      // Test 6: Case-insensitive search
+      runner.test('Search is case-insensitive', () => {
+        const searchInput = document.getElementById('searchInput');
+        
+        searchInput.value = 'YAMAN';
+        searchInput.dispatchEvent(new Event('input'));
+        
+        return new Promise(resolve => {
+          setTimeout(() => {
+            const upperResults = appState.displayedRagas.length;
+            
+            searchInput.value = 'yaman';
+            searchInput.dispatchEvent(new Event('input'));
+            
+            setTimeout(() => {
+              const lowerResults = appState.displayedRagas.length;
+              assertEqual(upperResults, lowerResults, 'Case should not affect results');
+              resolve();
+            }, 350);
+          }, 350);
+        });
+      });
+
+      // Test 7: Clicking raga opens detail view
+      runner.test('Clicking raga card opens detail view', () => {
+        // Reset first
+        handleClearFilters();
+        const searchInput = document.getElementById('searchInput');
+        searchInput.value = '';
+        searchInput.dispatchEvent(new Event('input'));
+        
+        return new Promise(resolve => {
+          setTimeout(() => {
+            const modal = document.getElementById('ragaDetailModal');
+            const ragaListContainer = document.getElementById('ragaListContainer');
+            
+            // Verify modal is initially hidden
+            assert(modal.classList.contains('hidden'), 'Modal should be initially hidden');
+            
+            // Click first raga card
+            const firstCard = ragaListContainer.children[0];
+            assert(firstCard, 'Should have at least one raga card');
+            
+            firstCard.click();
+            
+            // Verify modal is now visible
+            assert(!modal.classList.contains('hidden'), 'Modal should be visible after click');
+            
+            // Close modal for next test
+            hideRagaDetail();
+            
+            resolve();
+          }, 350);
+        });
+      });
+
+      // Test 8: Detail view shows correct raga information
+      runner.test('Detail view displays correct raga information', () => {
+        const ragaListContainer = document.getElementById('ragaListContainer');
+        const modalContent = document.getElementById('modalContent');
+        
+        const firstCard = ragaListContainer.children[0];
+        const ragaId = firstCard.getAttribute('data-raga-id');
+        const raga = getRagaById(ragaId);
+        
+        firstCard.click();
+        
+        const modalHTML = modalContent.innerHTML;
+        assertContains(modalHTML, raga.name, 'Should contain raga name');
+        assertContains(modalHTML, raga.thaat, 'Should contain thaat');
+        assertContains(modalHTML, raga.timeOfDay, 'Should contain time of day');
+        assertContains(modalHTML, raga.aroha, 'Should contain aroha');
+        assertContains(modalHTML, raga.avaroha, 'Should contain avaroha');
+        assertContains(modalHTML, raga.mood, 'Should contain mood');
+        assertContains(modalHTML, raga.characteristics, 'Should contain characteristics');
+        
+        hideRagaDetail();
+      });
+
+      // Test 9: Detail view preserves filter and search state
+      runner.test('Detail view preserves filter and search state', () => {
+        // Apply filter and search
+        const thaatFilter = document.getElementById('thaatFilter');
+        const searchInput = document.getElementById('searchInput');
+        
+        thaatFilter.value = 'Kalyan';
+        thaatFilter.dispatchEvent(new Event('change'));
+        
+        searchInput.value = 'Yaman';
+        searchInput.dispatchEvent(new Event('input'));
+        
+        return new Promise(resolve => {
+          setTimeout(() => {
+            const beforeCount = appState.displayedRagas.length;
+            const beforeSearch = appState.searchTerm;
+            const beforeThaat = appState.filters.thaat;
+            
+            // Open and close detail view
+            const ragaListContainer = document.getElementById('ragaListContainer');
+            if (ragaListContainer.children.length > 0) {
+              const firstCard = ragaListContainer.children[0];
+              firstCard.click();
+              hideRagaDetail();
+            }
+            
+            // Verify state preserved
+            assertEqual(appState.searchTerm, beforeSearch, 'Search term should be preserved');
+            assertEqual(appState.filters.thaat, beforeThaat, 'Filter should be preserved');
+            assertEqual(appState.displayedRagas.length, beforeCount, 'Display count should be preserved');
+            
+            resolve();
+          }, 350);
+        });
+      });
+
+      // Test 10: Full user workflow
+      runner.test('Full user workflow: search -> filter -> view detail -> close', () => {
+        // Reset
+        handleClearFilters();
+        
+        const searchInput = document.getElementById('searchInput');
+        const thaatFilter = document.getElementById('thaatFilter');
+        const ragaListContainer = document.getElementById('ragaListContainer');
+        const modal = document.getElementById('ragaDetailModal');
+        
+        // Step 1: Search
+        searchInput.value = 'Bhairav';
+        searchInput.dispatchEvent(new Event('input'));
+        
+        return new Promise(resolve => {
+          setTimeout(() => {
+            const searchResults = appState.displayedRagas.length;
+            assertGreaterThan(searchResults, 0, 'Should have search results');
+            
+            // Step 2: Apply filter
+            thaatFilter.value = 'Bhairav';
+            thaatFilter.dispatchEvent(new Event('change'));
+            
+            const filteredResults = appState.displayedRagas.length;
+            assert(filteredResults <= searchResults, 'Filtered should be <= search results');
+            
+            // Step 3: Click raga to view details
+            if (ragaListContainer.children.length > 0) {
+              const firstCard = ragaListContainer.children[0];
+              const ragaId = firstCard.getAttribute('data-raga-id');
+              
+              firstCard.click();
+              
+              assert(!modal.classList.contains('hidden'), 'Modal should be visible');
+              
+              const raga = getRagaById(ragaId);
+              const modalContent = document.getElementById('modalContent');
+              assertContains(modalContent.innerHTML, raga.name, 'Should show correct raga');
+              
+              // Step 4: Close modal
+              hideRagaDetail();
+              assert(modal.classList.contains('hidden'), 'Modal should be hidden');
+              
+              // Verify state preserved
+              assertEqual(appState.searchTerm, 'Bhairav', 'Search should be preserved');
+              assertEqual(appState.filters.thaat, 'Bhairav', 'Filter should be preserved');
+            }
+            
+            resolve();
+          }, 350);
+        });
+      });
+
+      // Run all tests
+      runner.run();
+    }, 500); // Wait for app initialization
+  </script>
+</body>
+</html>

@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Responsive Layout Tests - Indian Music Dashboard</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="../styles.css">
+  
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      padding: 20px;
+      background: #f9fafb;
+    }
+    .test-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .test-section {
+      margin-bottom: 40px;
+      padding: 20px;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+    }
+    .test-result {
+      padding: 12px;
+      margin: 8px 0;
+      border-radius: 6px;
+      font-family: monospace;
+      font-size: 14px;
+    }
+    .test-pass {
+      background: #d1fae5;
+      border-left: 4px solid #10b981;
+      color: #065f46;
+    }
+    .test-fail {
+      background: #fee2e2;
+      border-left: 4px solid #ef4444;
+      color: #991b1b;
+    }
+    .test-info {
+      background: #dbeafe;
+      border-left: 4px solid #3b82f6;
+      color: #1e40af;
+    }
+    h1 {
+      color: #ea580c;
+      margin-bottom: 10px;
+    }
+    h2 {
+      color: #dc2626;
+      margin-bottom: 15px;
+      font-size: 1.5rem;
+    }
+    h3 {
+      color: #f59e0b;
+      margin-bottom: 10px;
+      font-size: 1.2rem;
+    }
+    .summary {
+      font-size: 1.2rem;
+      font-weight: bold;
+      padding: 20px;
+      border-radius: 8px;
+      margin-top: 30px;
+    }
+    .summary.pass {
+      background: #d1fae5;
+      color: #065f46;
+    }
+    .summary.fail {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+    button {
+      background: linear-gradient(135deg, #ea580c 0%, #d97706 100%);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      margin: 10px 5px;
+      transition: all 0.2s;
+    }
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(234, 88, 12, 0.3);
+    }
+    .viewport-indicator {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      background: #1f2937;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: bold;
+      z-index: 1000;
+    }
+  </style>
+</head>
+<body>
+  
+  <div class="viewport-indicator" id="viewportIndicator">Viewport: <span id="viewportSize"></span></div>
+  
+  <div class="test-container">
+    <h1>🎵 Responsive Layout Tests</h1>
+    <p style="color: #6b7280; margin-bottom: 30px;">Testing responsive behavior at different viewport sizes</p>
+    
+    <div style="margin-bottom: 20px;">
+      <button onclick="runAllTests()">▶ Run All Tests</button>
+      <button onclick="location.reload()" style="background: #6b7280;">🔄 Reset</button>
+    </div>
+    
+    <div id="testResults"></div>
+  </div>
+
+  <!-- Test Fixtures -->
+  <div id="testFixture" style="position: absolute; left: -9999px; width: 100vw;">
+    <!-- Mobile Test Container -->
+    <div id="mobileTest" style="width: 375px;">
+      <div class="container mx-auto px-4">
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          <aside class="lg:col-span-1">
+            <div class="bg-white rounded-lg shadow-md p-6 sticky top-6" id="mobileFilterPanel"></div>
+          </aside>
+          <section class="lg:col-span-3">
+            <div id="mobileRagaList" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+              <div class="raga-card">Card 1</div>
+              <div class="raga-card">Card 2</div>
+              <div class="raga-card">Card 3</div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Tablet Test Container -->
+    <div id="tabletTest" style="width: 768px;">
+      <div class="container mx-auto px-4">
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          <aside class="lg:col-span-1">
+            <div class="bg-white rounded-lg shadow-md p-6 sticky top-6" id="tabletFilterPanel"></div>
+          </aside>
+          <section class="lg:col-span-3">
+            <div id="tabletRagaList" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+              <div class="raga-card">Card 1</div>
+              <div class="raga-card">Card 2</div>
+              <div class="raga-card">Card 3</div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Desktop Test Container -->
+    <div id="desktopTest" style="width: 1280px;">
+      <div class="container mx-auto px-4">
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          <aside class="lg:col-span-1">
+            <div class="bg-white rounded-lg shadow-md p-6 sticky top-6" id="desktopFilterPanel"></div>
+          </aside>
+          <section class="lg:col-span-3">
+            <div id="desktopRagaList" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+              <div class="raga-card">Card 1</div>
+              <div class="raga-card">Card 2</div>
+              <div class="raga-card">Card 3</div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Update viewport indicator
+    function updateViewportIndicator() {
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+      document.getElementById('viewportSize').textContent = `${width}x${height}px`;
+    }
+    
+    updateViewportIndicator();
+    window.addEventListener('resize', updateViewportIndicator);
+
+    let testResults = [];
+    
+    function logTest(name, passed, message) {
+      testResults.push({ name, passed, message });
+      const resultDiv = document.createElement('div');
+      resultDiv.className = `test-result ${passed ? 'test-pass' : 'test-fail'}`;
+      resultDiv.textContent = `${passed ? '✓' : '✗'} ${name}: ${message}`;
+      return resultDiv;
+    }
+    
+    function logInfo(message) {
+      const infoDiv = document.createElement('div');
+      infoDiv.className = 'test-result test-info';
+      infoDiv.textContent = `ℹ ${message}`;
+      return infoDiv;
+    }
+    
+    function getComputedStyleValue(element, property) {
+      return window.getComputedStyle(element).getPropertyValue(property);
+    }
+    
+    function testMobileLayout() {
+      const section = document.createElement('div');
+      section.className = 'test-section';
+      section.innerHTML = '<h2>📱 Mobile Layout Tests (< 768px)</h2>';
+      
+      const mobileContainer = document.getElementById('mobileTest');
+      const filterPanel = document.getElementById('mobileFilterPanel');
+      const ragaList = document.getElementById('mobileRagaList');
+      const ragaCards = ragaList.querySelectorAll('.raga-card');
+      
+      // Test 1: Filter panel should not be sticky on mobile
+      const filterPosition = getComputedStyleValue(filterPanel, 'position');
+      section.appendChild(logInfo(`Filter panel position: ${filterPosition}`));
+      section.appendChild(logTest(
+        'Mobile: Filter panel is not sticky',
+        filterPosition !== 'sticky' && filterPosition !== 'fixed',
+        `Position is ${filterPosition} (should be static or relative)`
+      ));
+      
+      // Test 2: Raga list should be single column
+      const ragaListDisplay = getComputedStyleValue(ragaList, 'display');
+      const gridTemplateColumns = getComputedStyleValue(ragaList, 'grid-template-columns');
+      section.appendChild(logInfo(`Raga list grid columns: ${gridTemplateColumns}`));
+      section.appendChild(logTest(
+        'Mobile: Raga list uses single column',
+        gridTemplateColumns.split(' ').length === 1,
+        `Grid has ${gridTemplateColumns.split(' ').length} column(s)`
+      ));
+      
+      // Test 3: Cards should stack vertically
+      if (ragaCards.length >= 2) {
+        const card1Rect = ragaCards[0].getBoundingClientRect();
+        const card2Rect = ragaCards[1].getBoundingClientRect();
+        const isStacked = card2Rect.top > card1Rect.bottom - 10; // Allow small margin
+        section.appendChild(logTest(
+          'Mobile: Cards stack vertically',
+          isStacked,
+          isStacked ? 'Cards are properly stacked' : 'Cards are not stacking correctly'
+        ));
+      }
+      
+      // Test 4: Container should use full width with padding
+      const container = mobileContainer.querySelector('.container');
+      const containerPadding = getComputedStyleValue(container, 'padding-left');
+      section.appendChild(logInfo(`Container padding: ${containerPadding}`));
+      section.appendChild(logTest(
+        'Mobile: Container has appropriate padding',
+        parseInt(containerPadding) >= 16, // 1rem = 16px
+        `Padding is ${containerPadding}`
+      ));
+      
+      return section;
+    }
+    
+    function testTabletLayout() {
+      const section = document.createElement('div');
+      section.className = 'test-section';
+      section.innerHTML = '<h2>📱 Tablet Layout Tests (768px - 1024px)</h2>';
+      
+      const tabletContainer = document.getElementById('tabletTest');
+      const filterPanel = document.getElementById('tabletFilterPanel');
+      const ragaList = document.getElementById('tabletRagaList');
+      
+      // Test 1: Raga list should be two columns on tablet
+      const gridTemplateColumns = getComputedStyleValue(ragaList, 'grid-template-columns');
+      const columnCount = gridTemplateColumns.split(' ').length;
+      section.appendChild(logInfo(`Raga list grid columns: ${gridTemplateColumns}`));
+      section.appendChild(logTest(
+        'Tablet: Raga list uses two columns',
+        columnCount === 2,
+        `Grid has ${columnCount} column(s) (expected 2)`
+      ));
+      
+      // Test 2: Filter panel should still not be sticky (only on lg+)
+      const filterPosition = getComputedStyleValue(filterPanel, 'position');
+      section.appendChild(logInfo(`Filter panel position: ${filterPosition}`));
+      section.appendChild(logTest(
+        'Tablet: Filter panel is not sticky yet',
+        filterPosition !== 'sticky' && filterPosition !== 'fixed',
+        `Position is ${filterPosition}`
+      ));
+      
+      // Test 3: Container should have appropriate max-width
+      const container = tabletContainer.querySelector('.container');
+      const maxWidth = getComputedStyleValue(container, 'max-width');
+      section.appendChild(logInfo(`Container max-width: ${maxWidth}`));
+      section.appendChild(logTest(
+        'Tablet: Container has tablet max-width',
+        parseInt(maxWidth) >= 768,
+        `Max-width is ${maxWidth}`
+      ));
+      
+      // Test 4: Gap between cards should be appropriate
+      const gap = getComputedStyleValue(ragaList, 'gap');
+      section.appendChild(logInfo(`Grid gap: ${gap}`));
+      section.appendChild(logTest(
+        'Tablet: Grid has appropriate gap',
+        parseInt(gap) >= 16,
+        `Gap is ${gap}`
+      ));
+      
+      return section;
+    }
+    
+    function testDesktopLayout() {
+      const section = document.createElement('div');
+      section.className = 'test-section';
+      section.innerHTML = '<h2>🖥️ Desktop Layout Tests (> 1024px)</h2>';
+      
+      const desktopContainer = document.getElementById('desktopTest');
+      const filterPanel = document.getElementById('desktopFilterPanel');
+      const ragaList = document.getElementById('desktopRagaList');
+      
+      // Test 1: Raga list should be three columns on desktop
+      const gridTemplateColumns = getComputedStyleValue(ragaList, 'grid-template-columns');
+      const columnCount = gridTemplateColumns.split(' ').length;
+      section.appendChild(logInfo(`Raga list grid columns: ${gridTemplateColumns}`));
+      section.appendChild(logTest(
+        'Desktop: Raga list uses three columns',
+        columnCount === 3,
+        `Grid has ${columnCount} column(s) (expected 3)`
+      ));
+      
+      // Test 2: Filter panel should be sticky on desktop
+      const filterPosition = getComputedStyleValue(filterPanel, 'position');
+      section.appendChild(logInfo(`Filter panel position: ${filterPosition}`));
+      section.appendChild(logTest(
+        'Desktop: Filter panel is sticky',
+        filterPosition === 'sticky' || filterPosition === 'fixed',
+        `Position is ${filterPosition}`
+      ));
+      
+      // Test 3: Container should have desktop max-width
+      const container = desktopContainer.querySelector('.container');
+      const maxWidth = getComputedStyleValue(container, 'max-width');
+      section.appendChild(logInfo(`Container max-width: ${maxWidth}`));
+      section.appendChild(logTest(
+        'Desktop: Container has desktop max-width',
+        parseInt(maxWidth) >= 1024,
+        `Max-width is ${maxWidth}`
+      ));
+      
+      // Test 4: Layout should use 4-column grid (1 for filter, 3 for content)
+      const mainGrid = desktopContainer.querySelector('.grid');
+      const mainGridColumns = getComputedStyleValue(mainGrid, 'grid-template-columns');
+      const mainColumnCount = mainGridColumns.split(' ').length;
+      section.appendChild(logInfo(`Main grid columns: ${mainGridColumns}`));
+      section.appendChild(logTest(
+        'Desktop: Main layout uses 4-column grid',
+        mainColumnCount === 4,
+        `Main grid has ${mainColumnCount} column(s) (expected 4)`
+      ));
+      
+      // Test 5: Gap should be optimal for desktop
+      const gap = getComputedStyleValue(ragaList, 'gap');
+      section.appendChild(logInfo(`Grid gap: ${gap}`));
+      section.appendChild(logTest(
+        'Desktop: Grid has optimal gap',
+        parseInt(gap) >= 20,
+        `Gap is ${gap}`
+      ));
+      
+      return section;
+    }
+    
+    function runAllTests() {
+      testResults = [];
+      const resultsContainer = document.getElementById('testResults');
+      resultsContainer.innerHTML = '';
+      
+      // Run tests for each viewport size
+      resultsContainer.appendChild(testMobileLayout());
+      resultsContainer.appendChild(testTabletLayout());
+      resultsContainer.appendChild(testDesktopLayout());
+      
+      // Display summary
+      const totalTests = testResults.length;
+      const passedTests = testResults.filter(t => t.passed).length;
+      const failedTests = totalTests - passedTests;
+      
+      const summary = document.createElement('div');
+      summary.className = `summary ${failedTests === 0 ? 'pass' : 'fail'}`;
+      summary.innerHTML = `
+        <h3>Test Summary</h3>
+        <p>Total Tests: ${totalTests}</p>
+        <p>Passed: ${passedTests} ✓</p>
+        <p>Failed: ${failedTests} ✗</p>
+        <p style="margin-top: 15px; font-size: 1.4rem;">
+          ${failedTests === 0 ? '🎉 All tests passed!' : '⚠️ Some tests failed'}
+        </p>
+      `;
+      resultsContainer.appendChild(summary);
+      
+      // Log to console
+      console.log('=== Responsive Layout Test Results ===');
+      console.log(`Total: ${totalTests}, Passed: ${passedTests}, Failed: ${failedTests}`);
+      testResults.forEach(result => {
+        console.log(`${result.passed ? '✓' : '✗'} ${result.name}: ${result.message}`);
+      });
+    }
+    
+    // Auto-run tests on load
+    window.addEventListener('load', () => {
+      setTimeout(runAllTests, 500);
+    });
+  </script>
+
+</body>
+</html>

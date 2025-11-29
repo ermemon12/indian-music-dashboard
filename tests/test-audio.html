@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Audio Property Tests</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 1200px;
+      margin: 20px auto;
+      padding: 20px;
+      background-color: #f5f5f5;
+    }
+    .test-container {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .test-result {
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 4px;
+    }
+    .passed {
+      background-color: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    .failed {
+      background-color: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+    .running {
+      background-color: #fff3cd;
+      color: #856404;
+      border: 1px solid #ffeaa7;
+    }
+    pre {
+      background-color: #f8f9fa;
+      padding: 10px;
+      border-radius: 4px;
+      overflow-x: auto;
+    }
+    h1 {
+      color: #333;
+    }
+    h2 {
+      color: #666;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="test-container">
+    <h1>Audio Property Tests</h1>
+    <div id="testResults"></div>
+  </div>
+
+  <!-- Load fast-check -->
+  <script src="https://cdn.jsdelivr.net/npm/fast-check@3.15.0/lib/bundle.js"></script>
+  
+  <!-- Load application modules -->
+  <script src="../js/data.js"></script>
+  <script src="../js/audio.js"></script>
+  <script src="../js/ui.js"></script>
+  
+  <!-- Load test generators -->
+  <script src="helpers/generators.js"></script>
+  
+  <!-- Load audio property tests -->
+  <script src="properties/audio.property.test.js"></script>
+  
+  <!-- Run tests -->
+  <script>
+    const resultsDiv = document.getElementById('testResults');
+    
+    function addResult(testName, passed, details = '') {
+      const resultDiv = document.createElement('div');
+      resultDiv.className = `test-result ${passed ? 'passed' : 'failed'}`;
+      resultDiv.innerHTML = `
+        <strong>${passed ? '✅' : '❌'} ${testName}</strong>
+        ${details ? `<pre>${details}</pre>` : ''}
+      `;
+      resultsDiv.appendChild(resultDiv);
+    }
+    
+    function addRunning(testName) {
+      const resultDiv = document.createElement('div');
+      resultDiv.className = 'test-result running';
+      resultDiv.innerHTML = `<strong>⏳ Running: ${testName}</strong>`;
+      resultDiv.id = 'running-test';
+      resultsDiv.appendChild(resultDiv);
+    }
+    
+    function removeRunning() {
+      const runningDiv = document.getElementById('running-test');
+      if (runningDiv) {
+        runningDiv.remove();
+      }
+    }
+    
+    // Run tests
+    setTimeout(() => {
+      console.log('=== Audio Property Tests ===\n');
+      
+      let allPassed = true;
+      
+      // Test 1: Audio player conditional rendering
+      addRunning('Property 12: Audio player conditional rendering');
+      const result1 = testAudioPlayerConditionalRendering();
+      removeRunning();
+      
+      if (result1.failed) {
+        console.error('❌ FAILED: Audio player conditional rendering');
+        console.error('Counterexample:', result1.counterexample);
+        addResult('Property 12: Audio player conditional rendering', false, 
+          `Counterexample: ${JSON.stringify(result1.counterexample, null, 2)}`);
+        allPassed = false;
+      } else {
+        console.log('✅ PASSED: Audio player conditional rendering (100 runs)');
+        addResult('Property 12: Audio player conditional rendering', true, '100 runs completed');
+      }
+      
+      // Test 2: Audio playback state management
+      addRunning('Property 13: Audio playback state management');
+      const result2 = testAudioPlaybackStateManagement();
+      removeRunning();
+      
+      if (result2.failed) {
+        console.error('❌ FAILED: Audio playback state management');
+        console.error('Counterexample:', result2.counterexample);
+        addResult('Property 13: Audio playback state management', false,
+          `Counterexample: ${JSON.stringify(result2.counterexample, null, 2)}`);
+        allPassed = false;
+      } else {
+        console.log('✅ PASSED: Audio playback state management (100 runs)');
+        addResult('Property 13: Audio playback state management', true, '100 runs completed');
+      }
+      
+      // Test 3: Audio cleanup on navigation
+      addRunning('Property 14: Audio cleanup on navigation');
+      const result3 = testAudioCleanupOnNavigation();
+      removeRunning();
+      
+      if (result3.failed) {
+        console.error('❌ FAILED: Audio cleanup on navigation');
+        console.error('Counterexample:', result3.counterexample);
+        addResult('Property 14: Audio cleanup on navigation', false,
+          `Counterexample: ${JSON.stringify(result3.counterexample, null, 2)}`);
+        allPassed = false;
+      } else {
+        console.log('✅ PASSED: Audio cleanup on navigation (100 runs)');
+        addResult('Property 14: Audio cleanup on navigation', true, '100 runs completed');
+      }
+      
+      // Summary
+      const summaryDiv = document.createElement('div');
+      summaryDiv.className = `test-result ${allPassed ? 'passed' : 'failed'}`;
+      summaryDiv.innerHTML = `<h2>${allPassed ? '✅ All Tests Passed!' : '❌ Some Tests Failed'}</h2>`;
+      resultsDiv.appendChild(summaryDiv);
+      
+      console.log(allPassed ? '\n✅ All audio property tests passed!' : '\n❌ Some audio property tests failed!');
+    }, 100);
+  </script>
+</body>
+</html>

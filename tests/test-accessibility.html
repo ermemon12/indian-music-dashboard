@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Accessibility Tests - Indian Music Dashboard</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="../styles.css">
+  
+  <style>
+    body {
+      font-family: monospace;
+      padding: 2rem;
+      background: #1a1a1a;
+      color: #00ff00;
+    }
+    
+    .test-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: #000;
+      padding: 2rem;
+      border: 2px solid #00ff00;
+      border-radius: 8px;
+    }
+    
+    h1 {
+      color: #00ff00;
+      text-align: center;
+      margin-bottom: 2rem;
+      font-size: 2rem;
+    }
+    
+    #testOutput {
+      white-space: pre-wrap;
+      font-family: 'Courier New', monospace;
+      line-height: 1.6;
+    }
+    
+    .success {
+      color: #00ff00;
+    }
+    
+    .error {
+      color: #ff0000;
+    }
+    
+    .warning {
+      color: #ffaa00;
+    }
+  </style>
+</head>
+<body>
+  <div class="test-container">
+    <h1>🔍 Accessibility Tests</h1>
+    <div id="testOutput">Running tests...</div>
+  </div>
+
+  <!-- Load the main application (hidden) -->
+  <div style="position: absolute; left: -9999px; top: -9999px;">
+    <!-- Include the actual app structure for testing -->
+    <div id="app-container">
+      <!-- Skip to main content link -->
+      <a href="#main-content" class="sr-only">Skip to main content</a>
+      
+      <!-- Header -->
+      <header role="banner">
+        <h1>Indian Music Dashboard</h1>
+      </header>
+
+      <!-- Main Content -->
+      <main id="main-content" role="main">
+        <!-- Search Bar -->
+        <section aria-label="Search section">
+          <label for="searchInput" class="sr-only">Search ragas by name</label>
+          <input 
+            type="search" 
+            id="searchInput" 
+            aria-label="Search ragas by name"
+            aria-describedby="searchDescription"
+          >
+          <span id="searchDescription" class="sr-only">Type to filter ragas by name.</span>
+        </section>
+
+        <!-- Filter Panel -->
+        <aside role="complementary" aria-label="Filter panel">
+          <h2 id="filtersHeading">Filters</h2>
+          
+          <label for="thaatFilter">Thaat</label>
+          <select 
+            id="thaatFilter" 
+            aria-label="Filter ragas by thaat classification"
+            aria-describedby="thaatDescription"
+          >
+            <option value="">All Thaats</option>
+          </select>
+          <span id="thaatDescription" class="sr-only">Select a thaat to filter ragas</span>
+          
+          <label for="timeFilter">Time of Day</label>
+          <select 
+            id="timeFilter" 
+            aria-label="Filter ragas by traditional performance time"
+            aria-describedby="timeDescription"
+          >
+            <option value="">All Times</option>
+          </select>
+          <span id="timeDescription" class="sr-only">Select a time of day to filter ragas</span>
+          
+          <button 
+            id="clearFiltersBtn" 
+            aria-label="Clear all active filters and show all ragas"
+            type="button"
+          >
+            Clear Filters
+          </button>
+        </aside>
+
+        <!-- Raga List -->
+        <section role="region" aria-label="Raga list" aria-live="polite">
+          <div id="ragaListContainer" role="list"></div>
+          <div id="noResultsMessage" class="hidden" role="status" aria-live="polite">
+            <svg aria-hidden="true"></svg>
+            <h3>No ragas found</h3>
+          </div>
+        </section>
+      </main>
+
+      <!-- Modal -->
+      <div id="ragaDetailModal" class="hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle" aria-describedby="modalDescription">
+        <div role="document">
+          <h2 id="modalTitle">Raga Details</h2>
+          <button 
+            id="closeModalBtn" 
+            aria-label="Close raga details dialog"
+            type="button"
+          >
+            <svg aria-hidden="true"></svg>
+          </button>
+          <div id="modalContent">
+            <span id="modalDescription" class="sr-only">Detailed information about the selected raga</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Load test script -->
+  <script src="verify-accessibility.js"></script>
+  
+  <script>
+    // Capture console output and display in the page
+    const testOutput = document.getElementById('testOutput');
+    const originalLog = console.log;
+    
+    console.log = function(...args) {
+      const message = args.join(' ');
+      const div = document.createElement('div');
+      
+      // Color code based on content
+      if (message.includes('✅')) {
+        div.className = 'success';
+      } else if (message.includes('❌')) {
+        div.className = 'error';
+      } else if (message.includes('⚠️')) {
+        div.className = 'warning';
+      }
+      
+      div.textContent = message;
+      testOutput.appendChild(div);
+      
+      // Also log to actual console
+      originalLog.apply(console, args);
+    };
+    
+    // Clear initial message
+    testOutput.innerHTML = '';
+  </script>
+</body>
+</html>

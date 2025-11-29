@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Automated Accessibility Tests - Indian Music Dashboard</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <style>
+    body {
+      font-family: 'Courier New', monospace;
+      padding: 2rem;
+      background: #1a1a1a;
+      color: #00ff00;
+      line-height: 1.6;
+    }
+    
+    .test-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: #000;
+      padding: 2rem;
+      border: 2px solid #00ff00;
+      border-radius: 8px;
+    }
+    
+    h1 {
+      color: #00ff00;
+      text-align: center;
+      margin-bottom: 2rem;
+      font-size: 2rem;
+      border-bottom: 2px solid #00ff00;
+      padding-bottom: 1rem;
+    }
+    
+    h2 {
+      color: #00aaff;
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+      font-size: 1.5rem;
+    }
+    
+    #testOutput {
+      white-space: pre-wrap;
+      font-family: 'Courier New', monospace;
+    }
+    
+    .test-line {
+      padding: 0.25rem 0;
+    }
+    
+    .success {
+      color: #00ff00;
+    }
+    
+    .error {
+      color: #ff0000;
+    }
+    
+    .warning {
+      color: #ffaa00;
+    }
+    
+    .info {
+      color: #00aaff;
+    }
+    
+    .summary {
+      margin-top: 2rem;
+      padding: 1rem;
+      border: 2px solid #00ff00;
+      border-radius: 4px;
+      background: #002200;
+    }
+    
+    .summary.failed {
+      border-color: #ff0000;
+      background: #220000;
+    }
+  </style>
+</head>
+<body>
+  <div class="test-container">
+    <h1>🔍 Automated Accessibility Tests</h1>
+    <div id="testOutput">Initializing tests...</div>
+  </div>
+
+  <!-- Load the main application structure (hidden) -->
+  <iframe id="appFrame" src="../index.html" style="position: absolute; left: -9999px; width: 1px; height: 1px;"></iframe>
+
+  <script>
+    // Test framework
+    let totalTests = 0;
+    let passedTests = 0;
+    let failedTests = 0;
+    const failedTestDetails = [];
+    let currentSuite = '';
+    
+    const output = document.getElementById('testOutput');
+    output.innerHTML = '';
+    
+    function log(message, className = '') {
+      const div = document.createElement('div');
+      div.className = `test-line ${className}`;
+      div.textContent = message;
+      output.appendChild(div);
+    }
+    
+    function describe(suiteName, testFn) {
+      currentSuite = suiteName;
+      log(`\n${suiteName}`, 'info');
+      testFn();
+    }
+    
+    function test(testName, testFn) {
+      totalTests++;
+      try {
+        testFn();
+        passedTests++;
+        log(`  ✓ ${testName}`, 'success');
+      } catch (error) {
+        failedTests++;
+        log(`  ✗ ${testName}`, 'error');
+        failedTestDetails.push({
+          suite: currentSuite,
+          test: testName,
+          error: error.message
+        });
+      }
+    }
+    
+    function expect(actual) {
+      return {
+        toBe(expected) {
+          if (actual !== expected) {
+            throw new Error(`Expected ${expected} but got ${actual}`);
+          }
+        },
+        toBeTruthy() {
+          if (!actual) {
+            throw new Error(`Expected truthy value but got ${actual}`);
+          }
+        },
+        toBeGreaterThan(expected) {
+          if (actual <= expected) {
+            throw new Error(`Expected ${actual} to be greater than ${expected}`);
+          }
+        },
+        toContain(expected) {
+          if (Array.isArray(actual)) {
+            if (!actual.includes(expected)) {
+              throw new Error(`Expected array to contain ${expected}`);
+            }
+          } else if (typeof actual === 'string') {
+            if (!actual.includes(expected)) {
+              throw new Error(`Expected "${actual}" to contain "${expected}"`);
+            }
+          }
+        },
+        toMatch(pattern) {
+          if (!pattern.test(actual)) {
+            throw new Error(`Expected "${actual}" to match pattern ${pattern}`);
+          }
+        }
+      };
+    }
+    
+    // Wait for iframe to load
+    window.addEventListener('load', () => {
+      const iframe = document.getElementById('appFrame');
+      const doc = iframe.contentDocument || iframe.contentWindow.document;
+      
+      log('╔════════════════════════════════════════════════════════╗', 'info');
+      log('║     Accessibility Tests - Indian Music Dashboard      ║', 'info');
+      log('╚════════════════════════════════════════════════════════╝', 'info');
+      
+      // Test Suite 1: Keyboard Navigation
+      describe('🎹 Keyboard Navigation Tests', () => {
+        
+        test('Skip to main content link exists and is keyboard accessible', () => {
+          const skipLink = doc.querySelector('a[href="#main-content"]');
+          expect(skipLink).toBeTruthy();
+          expect(skipLink.textContent).toContain('Skip to main content');
+          
+          const mainContent = doc.getElementById('main-content');
+          expect(mainContent).toBeTruthy();
+        });
+        
+        test('Search input is keyboard accessible', () => {
+          const searchInput = doc.getElementById('searchInput');
+          expect(searchInput).toBeTruthy();
+          expect(searchInput.type).toBe('search');
+        });
+        
+        test('Filter dropdowns are keyboard accessible', () => {
+          const thaatFilter = doc.getElementById('thaatFilter');
+          const timeFilter = doc.getElementById('timeFilter');
+          
+          expect(thaatFilter).toBeTruthy();
+          expect(thaatFilter.tagName).toBe('SELECT');
+          expect(timeFilter).toBeTruthy();
+          expect(timeFilter.tagName).toBe('SELECT');
+        });
+        
+        test('Clear filters button is keyboard accessible', () => {
+          const clearBtn = doc.getElementById('clearFiltersBtn');
+          expect(clearBtn).toBeTruthy();
+          expect(clearBtn.tagName).toBe('BUTTON');
+          expect(clearBtn.getAttribute('type')).toBe('button');
+        });
+        
+        test('Modal close button is keyboard accessible', () => {
+          const closeBtn = doc.getElementById('closeModalBtn');
+          expect(closeBtn).toBeTruthy();
+          expect(closeBtn.tagName).toBe('BUTTON');
+          expect(closeBtn.getAttribute('type')).toBe('button');
+        });
+        
+        test('All buttons have explicit type attribute', () => {
+          const buttons = doc.querySelectorAll('button');
+          expect(buttons.length).toBeGreaterThan(0);
+          
+          buttons.forEach(button => {
+            const type = button.getAttribute('type');
+            if (!['button', 'submit', 'reset'].includes(type)) {
+              throw new Error(`Button missing valid type attribute: ${button.id || button.textContent}`);
+            }
+          });
+        });
+      });
+      
+      // Test Suite 2: Screen Reader Compatibility
+      describe('🔊 Screen Reader Compatibility Tests', () => {
+        
+        test('Search input has proper ARIA labels', () => {
+          const searchInput = doc.getElementById('searchInput');
+          expect(searchInput).toBeTruthy();
+          expect(searchInput.getAttribute('aria-label')).toBe('Search ragas by name');
+          
+          const descId = searchInput.getAttribute('aria-describedby');
+          expect(descId).toBeTruthy();
+          expect(doc.getElementById(descId)).toBeTruthy();
+        });
+        
+        test('Thaat filter has proper ARIA labels', () => {
+          const thaatFilter = doc.getElementById('thaatFilter');
+          expect(thaatFilter.getAttribute('aria-label')).toBe('Filter ragas by thaat classification');
+          
+          const descId = thaatFilter.getAttribute('aria-describedby');
+          expect(descId).toBeTruthy();
+        });
+        
+        test('Time filter has proper ARIA labels', () => {
+          const timeFilter = doc.getElementById('timeFilter');
+          expect(timeFilter.getAttribute('aria-label')).toBe('Filter ragas by traditional performance time');
+          
+          const descId = timeFilter.getAttribute('aria-describedby');
+          expect(descId).toBeTruthy();
+        });
+        
+        test('Clear filters button has descriptive ARIA label', () => {
+          const clearBtn = doc.getElementById('clearFiltersBtn');
+          expect(clearBtn.getAttribute('aria-label')).toBe('Clear all active filters and show all ragas');
+        });
+        
+        test('Modal has proper dialog ARIA attributes', () => {
+          const modal = doc.getElementById('ragaDetailModal');
+          expect(modal).toBeTruthy();
+          expect(modal.getAttribute('role')).toBe('dialog');
+          expect(modal.getAttribute('aria-modal')).toBe('true');
+          
+          const titleId = modal.getAttribute('aria-labelledby');
+          const descId = modal.getAttribute('aria-describedby');
+          expect(doc.getElementById(titleId)).toBeTruthy();
+          expect(doc.getElementById(descId)).toBeTruthy();
+        });
+        
+        test('Modal close button has descriptive ARIA label', () => {
+          const closeBtn = doc.getElementById('closeModalBtn');
+          const ariaLabel = closeBtn.getAttribute('aria-label');
+          expect(ariaLabel).toContain('Close');
+          expect(ariaLabel).toContain('dialog');
+        });
+        
+        test('Semantic HTML5 elements have proper roles', () => {
+          const header = doc.querySelector('header');
+          const main = doc.querySelector('main');
+          const aside = doc.querySelector('aside');
+          
+          expect(header.getAttribute('role')).toBe('banner');
+          expect(main.getAttribute('role')).toBe('main');
+          expect(aside.getAttribute('role')).toBe('complementary');
+        });
+        
+        test('Raga list has aria-live for dynamic updates', () => {
+          const ragaList = doc.querySelector('[aria-label="Raga list"]');
+          expect(ragaList).toBeTruthy();
+          expect(ragaList.getAttribute('aria-live')).toBe('polite');
+        });
+        
+        test('No results message has proper status role', () => {
+          const noResults = doc.getElementById('noResultsMessage');
+          expect(noResults).toBeTruthy();
+          expect(noResults.getAttribute('role')).toBe('status');
+          expect(noResults.hasAttribute('aria-live')).toBeTruthy();
+        });
+        
+        test('Decorative SVG elements are hidden from screen readers', () => {
+          const svgs = doc.querySelectorAll('svg');
+          const hiddenSvgs = Array.from(svgs).filter(svg => 
+            svg.getAttribute('aria-hidden') === 'true'
+          );
+          expect(hiddenSvgs.length).toBeGreaterThan(0);
+        });
+        
+        test('Form labels are properly associated with inputs', () => {
+          const searchLabel = doc.querySelector('label[for="searchInput"]');
+          const thaatLabel = doc.querySelector('label[for="thaatFilter"]');
+          const timeLabel = doc.querySelector('label[for="timeFilter"]');
+          
+          expect(searchLabel).toBeTruthy();
+          expect(thaatLabel).toBeTruthy();
+          expect(timeLabel).toBeTruthy();
+        });
+        
+        test('Screen reader only content exists', () => {
+          const srOnlyElements = doc.querySelectorAll('.sr-only');
+          expect(srOnlyElements.length).toBeGreaterThan(0);
+          
+          srOnlyElements.forEach(element => {
+            if (element.textContent.trim().length === 0) {
+              throw new Error('Screen reader only element has no content');
+            }
+          });
+        });
+      });
+      
+      // Test Suite 3: Focus Indicators
+      describe('👁️  Focus Indicator Tests', () => {
+        
+        test('Search input has focus styling classes', () => {
+          const searchInput = doc.getElementById('searchInput');
+          expect(searchInput.className).toMatch(/focus:/);
+        });
+        
+        test('Thaat filter has focus styling classes', () => {
+          const thaatFilter = doc.getElementById('thaatFilter');
+          expect(thaatFilter.className).toMatch(/focus:/);
+        });
+        
+        test('Time filter has focus styling classes', () => {
+          const timeFilter = doc.getElementById('timeFilter');
+          expect(timeFilter.className).toMatch(/focus:/);
+        });
+        
+        test('Clear button has focus styling classes', () => {
+          const clearBtn = doc.getElementById('clearFiltersBtn');
+          expect(clearBtn.className).toMatch(/focus:/);
+        });
+        
+        test('Skip link has focus-visible styling', () => {
+          const skipLink = doc.querySelector('a[href="#main-content"]');
+          expect(skipLink).toBeTruthy();
+          expect(skipLink.className).toMatch(/focus:/);
+        });
+        
+        test('Modal close button has focus styling', () => {
+          const closeBtn = doc.getElementById('closeModalBtn');
+          expect(closeBtn.className).toMatch(/focus:/);
+        });
+      });
+      
+      // Print summary
+      const summaryDiv = document.createElement('div');
+      summaryDiv.className = failedTests > 0 ? 'summary failed' : 'summary';
+      
+      let summaryHTML = '<div class="info">╔════════════════════════════════════════════════════════╗</div>';
+      summaryHTML += '<div class="info">║                    Test Summary                        ║</div>';
+      summaryHTML += '<div class="info">╚════════════════════════════════════════════════════════╝</div>';
+      summaryHTML += `<div class="test-line">Total Tests: ${totalTests}</div>`;
+      summaryHTML += `<div class="test-line success">Passed: ${passedTests}</div>`;
+      summaryHTML += `<div class="test-line error">Failed: ${failedTests}</div>`;
+      
+      if (failedTests > 0) {
+        summaryHTML += '<div class="test-line error">\nFailed Tests:</div>';
+        failedTestDetails.forEach(({ suite, test, error }) => {
+          summaryHTML += `<div class="test-line warning">\n${suite}</div>`;
+          summaryHTML += `<div class="test-line error">  ✗ ${test}</div>`;
+          summaryHTML += `<div class="test-line error">    ${error}</div>`;
+        });
+      }
+      
+      const successRate = ((passedTests / totalTests) * 100).toFixed(1);
+      summaryHTML += `<div class="test-line">\nSuccess Rate: ${successRate}%</div>`;
+      
+      if (failedTests === 0) {
+        summaryHTML += '<div class="test-line success">\n🎉 All accessibility tests passed!</div>';
+      } else {
+        summaryHTML += `<div class="test-line warning">\n⚠️  ${failedTests} accessibility test(s) failed. Please review.</div>`;
+      }
+      
+      summaryDiv.innerHTML = summaryHTML;
+      output.appendChild(summaryDiv);
+    });
+  </script>
+</body>
+</html>
